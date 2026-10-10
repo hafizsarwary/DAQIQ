@@ -1,0 +1,95 @@
+{
+    "project":  "Daqiq — GeoAI Café Site Selection · Milan",
+    "phase":  "Phase 2",
+    "generated":  "Not supplied",
+    "study_area":  "Milan, Italy",
+    "cells":  {
+                  "negative_label":  626,
+                  "positive_label":  345,
+                  "total_viable":  971,
+                  "positive_rate":  0.35530381050463439
+              },
+    "suitability_tiers":  {
+                              "HIGH":  359,
+                              "MEDIUM":  324,
+                              "LOW":  288,
+                              "thresholds":  {
+                                                 "logic":  "Phase 2 tier labels are loaded directly from the GeoJSON. Threshold metadata was not supplied."
+                                             }
+                          },
+    "score_ranges":  {
+                         "ahp_score":  {
+                                           "min":  0.1043,
+                                           "mean":  0.49307960865087519,
+                                           "max":  0.8016
+                                       },
+                         "rf_probability":  {
+                                                "min":  0,
+                                                "mean":  0.44057167868177088,
+                                                "max":  1
+                                            },
+                         "combined_score":  {
+                                                "min":  0.0149,
+                                                "mean":  0.50051513903192579,
+                                                "max":  0.9912
+                                            }
+                     },
+    "features":  {
+                     "count":  13,
+                     "shap_columns":  [
+                                          "shap_Metro_Access",
+                                          "shap_Bus_Tram_Density",
+                                          "shap_Network_Centrality",
+                                          "shap_Population_Density",
+                                          "shap_Night_Light",
+                                          "shap_Retail_Density",
+                                          "shap_Tourist_POIs",
+                                          "shap_POI_Diversity",
+                                          "shap_Pedestrian_Street",
+                                          "shap_Market_Opportunity",
+                                          "shap_Café_Density",
+                                          "shap_Office_Density",
+                                          "shap_University_Proximity"
+                                      ]
+                 },
+    "colour_ramp":  {
+                        "field":  "combined_score",
+                        "type":  "continuous",
+                        "method":  "percentile-rank average of ahp_score and rf_probability",
+                        "note":  "combined_score is uniformly distributed in [0,1]. Colour stops are percentile-based, not absolute score values.",
+                        "stops":  [
+                                      [
+                                          0.0,
+                                          "#d73027"
+                                      ],
+                                      [
+                                          0.2,
+                                          "#f46d43"
+                                      ],
+                                      [
+                                          0.35,
+                                          "#fdae61"
+                                      ],
+                                      [
+                                          0.5,
+                                          "#a6d96a"
+                                      ],
+                                      [
+                                          0.65,
+                                          "#1a9850"
+                                      ]
+                                  ],
+                        "tier_colours":  {
+                                             "HIGH":  "#1a9850",
+                                             "MEDIUM":  "#fdae61",
+                                             "LOW":  "#d73027"
+                                         }
+                    },
+    "model_performance":  {
+
+                          },
+    "methodology":  {
+
+                    },
+    "summary_note":  "Counts and score ranges derived from the Phase 2 GeoJSON. Colour palette retained from the existing UI. Model performance, AHP configuration, generation timestamp and tier thresholds were not supplied."
+}

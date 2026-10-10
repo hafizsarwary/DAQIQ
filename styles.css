@@ -300,17 +300,17 @@ input[type="range"] {
 }
 
 .divergence-icon {
-  width: 26px;
-  height: 26px;
+  width: 12px;
+  height: 12px;
   border-radius: 999px;
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid rgba(215, 48, 39, 0.24);
   color: var(--low);
-  font-size: 16px;
+  font-size: 9px;
   font-weight: 700;
-  box-shadow: 0 6px 20px rgba(20, 32, 43, 0.14);
+  box-shadow: none;
 }
 
 .details-panel {

@@ -1,10 +1,11 @@
 const APP_CONFIG = {
-  phase: "phase1-static",
+  phase: "phase2-static",
   data: {
-    summary: "./data/phase1/gold_webgis_summary.json",
-    layer: "./data/phase1/gold_webgis_layer.geojson",
+    summary: "./data/phase2/gold_webgis_summary.json",
+    layer: "./data/phase2/gold_webgis_layer.geojson",
   },
   mandatoryDivergenceThreshold: 100,
+  divergenceMinZoom: 15,
 };
 
 const state = {
@@ -124,8 +125,8 @@ function initializeMap() {
 
   L.control.zoom({ position: "topright" }).addTo(state.map);
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
   }).addTo(state.map);
 
@@ -135,6 +136,7 @@ function initializeMap() {
   }).addTo(state.map);
 
   state.divergenceLayer = L.layerGroup().addTo(state.map);
+  state.map.on("zoomend", redrawDivergenceMarkers);
 }
 
 async function fetchJson(path) {
@@ -223,27 +225,9 @@ function applyFilters() {
 
 function redrawFeatures() {
   state.featureLayer.clearLayers();
-  state.divergenceLayer.clearLayers();
   state.featureLayer.addData({
     type: "FeatureCollection",
     features: state.filteredFeatures,
-  });
-
-  state.filteredFeatures.forEach((feature) => {
-    const props = feature.properties;
-    if (Number(props.rank_diff || 0) > APP_CONFIG.mandatoryDivergenceThreshold) {
-      const marker = L.marker([Number(props.centroid_lat), Number(props.centroid_lng)], {
-        icon: L.divIcon({
-          className: "",
-          html: '<div class="divergence-icon" aria-hidden="true">&#9888;</div>',
-          iconSize: [26, 26],
-          iconAnchor: [13, 13],
-        }),
-      });
-      marker.bindTooltip("Expert and model disagree on this location.");
-      marker.on("click", () => selectFeature(feature, true));
-      state.divergenceLayer.addLayer(marker);
-    }
   });
 
   if (state.filteredFeatures.length > 0) {
@@ -253,6 +237,32 @@ function redrawFeatures() {
       state._hasFittedBounds = true;
     }
   }
+  redrawDivergenceMarkers();
+}
+
+function redrawDivergenceMarkers() {
+  state.divergenceLayer.clearLayers();
+  if (state.map.getZoom() < APP_CONFIG.divergenceMinZoom) {
+    return;
+  }
+
+  state.filteredFeatures.forEach((feature) => {
+    const props = feature.properties;
+    if (Number(props.rank_diff || 0) > APP_CONFIG.mandatoryDivergenceThreshold) {
+      const marker = L.marker([Number(props.centroid_lat), Number(props.centroid_lng)], {
+        icon: L.divIcon({
+          className: "",
+          html: '<div class="divergence-icon" aria-hidden="true">&#9888;</div>',
+          iconSize: [12, 12],
+          iconAnchor: [6, 6],
+        }),
+      });
+      marker.bindTooltip("Expert and model disagree on this location.");
+      marker.on("click", () => selectFeature(feature, true));
+      state.divergenceLayer.addLayer(marker);
+    }
+  });
+
 }
 
 function bindFeatureInteractions(feature, layer) {
