@@ -29,3 +29,6 @@ No browser connected. Automated adapters do not establish full acceptance.
 The user subsequently supplied updated Phase 2 summary metadata. Its explicitly
 approved hash is recorded in approved-metadata.json; original dataset and logo
 hashes remain protected. The original baseline remains unchanged.
+
+The user subsequently replaced daqiq_logo.jpeg with daqiq_logo.png.
+The replacement hash is approved-logo.json; the original baseline is preserved.

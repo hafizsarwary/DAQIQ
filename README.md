@@ -116,7 +116,7 @@ Recommended JSON shape:
 
 ## DAQIQ interface redesign
 
-The official ./daqiq_logo.jpeg appears intact in the top-left navigation.
+The official ./daqiq_logo.png appears intact in the top-left navigation.
 All asset/data paths remain relative for GitHub Pages project hosting.
 The map colour controls sit above the map, and the complete dynamic legend and
 academic note are expandable. All SHAP and examiner information remains in
