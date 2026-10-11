@@ -47,10 +47,10 @@ Then open `http://localhost:8000`.
 
 The app currently reads:
 
-- `./data/phase1/gold_webgis_summary.json`
-- `./data/phase1/gold_webgis_layer.geojson`
+- `./data/phase2/gold_webgis_summary.json`
+- `./data/phase2/gold_webgis_layer.geojson`
 
-These files are included for reproducibility and Phase 1 development.
+The Phase 1 files remain included for reproducibility; the frontend uses the delivered Phase 2 files.
 
 ## Phase 2 integration path
 
@@ -112,3 +112,36 @@ Recommended JSON shape:
   }
 }
 ```
+
+
+## DAQIQ interface redesign
+
+The official ./daqiq_logo.jpeg appears intact in the top-left navigation.
+All asset/data paths remain relative for GitHub Pages project hosting.
+The map colour controls sit above the map, and the complete dynamic legend and
+academic note are expandable. All SHAP and examiner information remains in
+the scrollable details overlay. The map fills the space beside the filters.
+Location details opens over the map when a cell or ranking item is selected;
+closing it or filtering out the selected cell hides it. On mobile the filters
+and map stack, with a separately scrollable ranking list.
+
+Differences are on by default, preserving the original behaviour. Use the
+Differences toggle to hide or restore the overlay. Markers still use
+rank_diff > 100 and appear at zoom level 15 or above. Disagreement counts and
+selected-cell badges remain available regardless of overlay visibility.
+Reset all restores tier and score filters; the details close button clears selection.
+
+No data, score calculations, analytical output renderers or methodology content
+was modified. Missing methodology metadata remains represented by the existing
+fallbacks and placeholders.
+
+Run preservation checks from this project directory:
+
+    node --check app.js
+    node verification/verify.cjs
+
+The original files, pre-change checklist, baseline and comparison results are
+in verification/. Automated checks use DOM/Leaflet adapters and actual data,
+check 35 unchanged functions and compare SHA-256 hashes of both datasets and
+the official logo. Real browser and deployed GitHub Pages acceptance is pending
+because no browser was connected during implementation.

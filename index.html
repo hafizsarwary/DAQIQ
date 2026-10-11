@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DAQIQ WebGIS | Explainable GeoAI for Urban Retail Site Selection</title>
+  <title>DAQIQ | Milan Café Explorer</title>
+  <meta name="theme-color" content="#17365b">
+  <link rel="icon" type="image/jpeg" href="./daqiq_logo.jpeg">
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link
@@ -16,33 +18,39 @@
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div class="title-block">
-        <p class="eyebrow">Phase 3 WebGIS Frontend</p>
-        <h1>Explainable GeoAI for Urban Retail Site Selection</h1>
-        <p class="subtitle" id="dataset-summary">Loading Phase 1 proof-of-concept dataset...</p>
+      <div class="brand">
+        <img class="brand-logo" src="./daqiq_logo.jpeg" alt="DAQIQ official logo" width="64" height="64">
+        <div class="title-block">
+        <p class="eyebrow">DAQIQ / Location intelligence</p>
+        <h1>Milan Café Explorer</h1>
+      </div>
       </div>
       <div class="toolbar">
-        <div class="segmented-control" aria-label="Map colour mode">
-          <button id="mode-combined" class="is-active" type="button">Combined Score</button>
-          <button id="mode-tier" type="button">Suitability Tier</button>
+
+        <div class="segmented-control" role="group" aria-label="Audience view">
+          <button id="view-entrepreneur" class="is-active" type="button" aria-pressed="true">Entrepreneur View</button>
+          <button id="view-examiner" type="button" aria-pressed="false">Thesis/Examiner View</button>
         </div>
-        <div class="segmented-control" aria-label="Audience view">
-          <button id="view-entrepreneur" class="is-active" type="button">Entrepreneur View</button>
-          <button id="view-examiner" type="button">Thesis/Examiner View</button>
-        </div>
-        <button id="open-methodology" class="ghost-button" type="button">About / Methodology</button>
+        <button id="open-methodology" class="ghost-button" type="button" aria-haspopup="dialog">About / Methodology</button>
       </div>
     </header>
 
     <main class="layout">
-      <aside class="sidebar sidebar-left">
+      <aside class="sidebar sidebar-left" aria-label="Filters and ranked locations">
+        <div class="sidebar-intro">
+          <p class="eyebrow">Explore the city</p>
+          <h2>Find promising locations</h2>
+          <p>Filter areas and compare the research indicators for a café.</p>
+          <p class="subtitle" id="dataset-summary" role="status">Loading research dataset...</p>
+        </div>
         <section class="card">
           <div class="card-header">
-            <h2>Search / Filter</h2>
+            <div class="card-heading"><h2>Filters</h2><button id="reset-filters" class="text-button" type="button">Reset all</button></div>
             <p>Refine cells in real time.</p>
           </div>
           <div class="control-group">
-            <span class="control-label">Suitability tier</span>
+            <span class="control-label">Suitability level</span>
+            <div class="tier-options">
             <label class="check-row">
               <input id="tier-high" type="checkbox" checked>
               <span>HIGH</span>
@@ -55,6 +63,7 @@
               <input id="tier-low" type="checkbox" checked>
               <span>LOW</span>
             </label>
+            </div>
           </div>
           <div class="control-group">
             <label class="control-label" for="score-threshold">
@@ -85,38 +94,47 @@
 
         <section class="card">
           <div class="card-header">
-            <h2>Top Ranked Cells</h2>
+            <h2>Top locations</h2>
             <p>Sorted by combined suitability.</p>
           </div>
           <ol id="ranking-list" class="ranking-list"></ol>
         </section>
 
-        <section class="card">
-          <div class="card-header">
-            <h2>Legend</h2>
-            <p>Driven by the summary metadata.</p>
-          </div>
-          <div id="legend-panel" class="legend-panel"></div>
-        </section>
+
       </aside>
 
       <section class="map-panel">
-        <div class="map-overlay-card">
-          <strong>Academic note</strong>
+        <div class="map-tools">
+          <div class="map-location"><strong>Suitability map</strong><span>Milan, Italy</span></div>
+          <div class="map-actions">
+            <div class="segmented-control" role="group" aria-label="Map colour mode">
+          <button id="mode-combined" class="is-active" type="button" aria-pressed="true">Combined Score</button>
+          <button id="mode-tier" type="button" aria-pressed="false">Suitability Tier</button>
+        </div>
+            <button id="toggle-divergence" class="ghost-button" type="button" aria-pressed="true" title="AHP-RF rank difference > 100. Markers appear from zoom level 15.">&#9671; Differences on</button>
+          </div>
+        </div>
+
+        <div id="map" aria-label="Map of Milan suitability cells"></div>
+        <div class="map-bottom">
+          <details class="card map-legend" open><summary class="eyebrow">Map legend &amp; interpretation</summary>
+          <div id="legend-panel" class="legend-panel"></div>
+        </details>
+          <details class="map-overlay-card">
+          <summary>Academic note</summary>
           <span>
             AHP and RF remain separate indicators throughout the interface. The combined score is shown only as a synthesis layer.
           </span>
+        </details>
+          <p class="zoom-note">Differences: rank gap &gt; 100 &middot; markers from zoom 15.</p>
         </div>
-        <div id="map" aria-label="Map of Milan suitability cells"></div>
-      </section>
-
-      <aside class="sidebar sidebar-right">
+      <aside id="location-details" class="sidebar sidebar-right" aria-label="Selected location details" hidden>
         <section class="card details-card">
           <div class="card-header">
-            <h2>Cell Details</h2>
+            <p class="eyebrow">Location explained</p><div class="card-heading"><h2>Location details</h2><button id="clear-selection" class="icon-button" type="button" aria-label="Clear selected location">&times;</button></div>
             <p>Click a hexagon or ranking item.</p>
           </div>
-          <div id="details-panel" class="details-panel">
+          <div id="details-panel" class="details-panel" aria-live="polite">
             <div class="empty-state">
               <h3>No cell selected</h3>
               <p>Select a hexagon on the map to inspect its scores, explanatory factors, and SHAP profile.</p>
@@ -124,6 +142,9 @@
           </div>
         </section>
       </aside>
+      </section>
+
+
     </main>
   </div>
 

@@ -16,6 +16,7 @@ const state = {
   shapColumns: [],
   selectedFeatureId: null,
   colourMode: "combined",
+  showDivergence: true,
   audienceView: "entrepreneur",
   minimumCombinedScore: 0,
   visibleTiers: new Set(["HIGH", "MEDIUM", "LOW"]),
@@ -82,6 +83,7 @@ async function init() {
 }
 
 function bindControls() {
+  bindInterfaceControls();
   dom.scoreThreshold.addEventListener("input", (event) => {
     state.minimumCombinedScore = Number(event.target.value);
     dom.scoreThresholdValue.textContent = state.minimumCombinedScore.toFixed(2);
@@ -242,7 +244,7 @@ function redrawFeatures() {
 
 function redrawDivergenceMarkers() {
   state.divergenceLayer.clearLayers();
-  if (state.map.getZoom() < APP_CONFIG.divergenceMinZoom) {
+  if (!state.showDivergence || state.map.getZoom() < APP_CONFIG.divergenceMinZoom) {
     return;
   }
 
@@ -478,6 +480,7 @@ function renderLegend() {
 }
 
 function renderDetails(feature) {
+  setDetailsVisibility(Boolean(feature));
   if (!feature) {
     dom.detailsPanel.innerHTML = `
       <div class="empty-state">
@@ -747,7 +750,11 @@ function renderMethodology() {
 }
 
 function toggleMethodology(show) {
+  const wasOpen = !dom.methodologyModal.classList.contains("hidden");
   dom.methodologyModal.classList.toggle("hidden", !show);
+  document.body.classList.toggle("modal-open", show);
+  if (show) dom.closeMethodology.focus();
+  else if (wasOpen) dom.openMethodology.focus();
 }
 
 function parseTopFactors(value) {
@@ -845,6 +852,7 @@ function normalizeText(value) {
 }
 
 function renderFatalError(message) {
+  setDetailsVisibility(true);
   dom.datasetSummary.textContent = message;
   dom.detailsPanel.innerHTML = `
     <div class="error-card">
@@ -867,4 +875,55 @@ function getTierEntries() {
     color: tierColours[name] || "#cccccc",
     count: tierCounts[name] || 0,
   }));
+}
+
+// Interface controls only. Data and analytical functions are preserved.
+function bindInterfaceControls() {
+  document.getElementById("toggle-divergence").addEventListener("click", () => {
+    state.showDivergence = !state.showDivergence;
+    const button = document.getElementById("toggle-divergence");
+    button.setAttribute("aria-pressed", String(state.showDivergence));
+    button.textContent = "◇ Differences " + (state.showDivergence ? "on" : "off");
+    redrawDivergenceMarkers();
+  });
+  document.getElementById("reset-filters").addEventListener("click", () => {
+    state.minimumCombinedScore = 0;
+    state.visibleTiers = new Set(["HIGH", "MEDIUM", "LOW"]);
+    dom.scoreThreshold.value = "0";
+    dom.scoreThresholdValue.textContent = "0.00";
+    dom.tierHigh.checked = dom.tierMedium.checked = dom.tierLow.checked = true;
+    applyFilters();
+  });
+  document.getElementById("clear-selection").addEventListener("click", () => {
+    state.selectedFeatureId = null;
+    redrawFeatures();
+    renderDetails(null);
+  });
+  for (const [buttons, key, values] of [
+    [[dom.modeCombined, dom.modeTier], "colourMode", ["combined", "tier"]],
+    [[dom.viewEntrepreneur, dom.viewExaminer], "audienceView", ["entrepreneur", "examiner"]],
+  ]) buttons.forEach(button => button.addEventListener("click", () => {
+    buttons.forEach((item, index) => item.setAttribute("aria-pressed", String(state[key] === values[index])));
+  }));
+  dom.methodologyModal.addEventListener("keydown", event => {
+    if (event.key !== "Tab") return;
+    const items = [...dom.methodologyModal.querySelectorAll('button, a[href], input, select, textarea, [tabindex="0"]')];
+    const first = items[0], last = items[items.length - 1];
+    if (!first) return;
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault(); first.focus();
+    }
+  });
+  if (typeof ResizeObserver !== "undefined") {
+    const observer = new ResizeObserver(() => state.map?.invalidateSize());
+    observer.observe(document.getElementById("map"));
+  }
+}
+
+
+// The details card overlays the map and exists visually only for a selection or error.
+function setDetailsVisibility(show) {
+  document.getElementById("location-details").hidden = !show;
 }
