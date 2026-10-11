@@ -1,147 +1,54 @@
-# DAQIQ Phase 3 WebGIS Frontend
+﻿# DAQIQ WebGIS
 
-Static Phase 3 frontend for the thesis **Explainable GeoAI for Urban Retail Site Selection**.
+Explainable GeoAI for Urban Retail Site Selection in Milan.
 
-This implementation follows the Phase 3 briefing for the current Phase 1 handoff:
+## Project files
 
-- H3 hexagon WebGIS map
-- Combined-score and tier choropleth toggle
-- Dynamic legend driven by `gold_webgis_summary.json`
-- Click-to-inspect details panel with separate AHP and RF indicators
-- Signed SHAP bar chart for all delivered `shap_*` columns
-- Mandatory divergence warning for `rank_diff > 100`
-- Real-time tier and combined-score filters
-- Top-N ranking sidebar
-- Entrepreneur / Thesis-Examiner view toggle
-- About / Methodology panel with required thesis context and Phase 2 placeholders
+- index.html: application interface
+- styles.css: responsive layout and styling
+- app.js: map controls and analytical presentation
+- daqiq_logo.png: official DAQIQ logo
+- data/phase2/gold_webgis_layer.geojson: active H3 layer, scores and SHAP values
+- data/phase2/gold_webgis_summary.json: active dataset and methodology metadata
 
-## Project structure
-
-```text
-.
-|-- index.html
-|-- styles.css
-|-- app.js
-|-- data
-|   |-- phase1
-|   |   |-- gold_webgis_layer.geojson
-|   |   `-- gold_webgis_summary.json
-|   `-- phase2
-|       `-- README.md
-`-- Phase3_Frontend_Briefing.md
-```
+All local asset and data paths are relative for GitHub Pages project hosting.
 
 ## Run locally
 
-Serve the folder through a local static web server. Do not open `index.html` directly with `file://`, because the browser will block `fetch()` for the data files.
+Serve this directory with Live Server, or run:
 
-Example:
+    python -m http.server 8000
 
-```powershell
-python -m http.server 8000
-```
+Then open http://localhost:8000. Opening index.html directly with file:// blocks
+the data requests. Leaflet and OpenStreetMap tiles require an internet connection.
 
-Then open `http://localhost:8000`.
+## Features
 
-## Current data source
+- H3 map with combined-score and suitability-tier colouring and metadata-driven legend
+- Live suitability filters, minimum score, counts and Top 5/10/20 rankings
+- Cell selection, separate AHP/RF/combined indicators and all supplied SHAP factors
+- Entrepreneur and Thesis/Examiner views
+- AHP-RF disagreement markers for rank_diff > 100 at zoom level 15 or above
+- Differences overlay toggle, reset filters and clear selection
+- Selection-only details overlay above the continuous map
+- Methodology panel with supplied metrics, configuration and source credits
 
-The app currently reads:
+## Metadata limitations
 
-- `./data/phase2/gold_webgis_summary.json`
-- `./data/phase2/gold_webgis_layer.geojson`
+The frontend reads the supplied Phase 2 metadata; missing fields retain the
+existing fallback messages. The separate Validation AUC row expects
+methodology.rf.validation_auc_reported. The existing Phase 1 summary AUC label
+currently displays model_performance.rf_auc_validation from the active summary.
+Consistency ratio, feature-level agreement and credits need the corresponding
+methodology fields. Sensitivity and AHP-vs-SHAP tables remain original placeholders.
 
-The Phase 1 files remain included for reproducibility; the frontend uses the delivered Phase 2 files.
+## Cleanup verification
 
-## Phase 2 integration path
+Fourteen automated preservation check groups passed before removing the
+development verification files and unused Phase 1 copies. All six runtime files
+were checked for byte-for-byte integrity during cleanup. Full interactive browser
+acceptance remains pending; the automated checks used DOM/Leaflet adapters.
 
-The frontend is intentionally structured so the Phase 2 swap happens at the data layer only:
-
-1. Receive the updated full-city `gold_webgis_layer.geojson`
-2. Receive the updated `gold_webgis_summary.json`
-3. Replace the frontend data source path
-4. Keep the same UI code and let the summary metadata reconfigure the legend, colour ramp, and methodology values
-5. Fill the Phase 2 table placeholders when the additional validation artifacts are delivered
-
-At the updated project scale of roughly 2,200 H3 cells, loading the full GeoJSON directly in the browser via `fetch()` is the intended architecture. No PostGIS, no tile server, and no database are required.
-
-## Known Phase 1 limitations from the handoff
-
-- Validation-set flags are not present in the current Phase 1 GeoJSON, so the Thesis/Examiner panel shows a fallback note.
-- The tier-stability sensitivity table and AHP-vs-SHAP comparison table are reserved for the Phase 2 artifacts mentioned in the briefing.
-- The current implementation already uses direct GeoJSON loading and `Leaflet` with canvas rendering enabled, which should remain smooth at the updated Phase 2 scale.
-
-## Phase 2 Metadata Requirements
-
-For the Methodology panel to populate automatically with zero code changes, the Phase 2 `gold_webgis_summary.json` should include these keys:
-
-- `methodology.ahp.consistency_ratio`
-- `methodology.rf.validation_auc_reported`
-- `methodology.agreement.feature_level_rho`
-- `methodology.data_credits`
-
-The frontend also continues to read these existing summary keys:
-
-- `model_performance.rf_auc_validation`
-- `model_performance.rf_cv_auc_mean`
-- `model_performance.spearman_ahp_rf_cell_level`
-- `features.ahp_clusters`
-- `colour_ramp.stops`
-- `colour_ramp.tier_colours`
-- `suitability_tiers.thresholds`
-
-Recommended JSON shape:
-
-```json
-{
-  "methodology": {
-    "ahp": {
-      "consistency_ratio": 0.0439
-    },
-    "rf": {
-      "validation_auc_reported": 0.918
-    },
-    "agreement": {
-      "feature_level_rho": -0.07
-    },
-    "data_credits": [
-      "OpenStreetMap",
-      "Urban Atlas 2021",
-      "ISTAT",
-      "VIIRS 2024"
-    ]
-  }
-}
-```
-
-
-## DAQIQ interface redesign
-
-The official ./daqiq_logo.png appears intact in the top-left navigation.
-All asset/data paths remain relative for GitHub Pages project hosting.
-The map colour controls sit above the map, and the complete dynamic legend and
-academic note are expandable. All SHAP and examiner information remains in
-the scrollable details overlay. The map fills the space beside the filters.
-Location details opens over the map when a cell or ranking item is selected;
-closing it or filtering out the selected cell hides it. On mobile the filters
-and map stack, with a separately scrollable ranking list.
-
-Differences are on by default, preserving the original behaviour. Use the
-Differences toggle to hide or restore the overlay. Markers still use
-rank_diff > 100 and appear at zoom level 15 or above. Disagreement counts and
-selected-cell badges remain available regardless of overlay visibility.
-Reset all restores tier and score filters; the details close button clears selection.
-
-No data, score calculations, analytical output renderers or methodology content
-was modified. Missing methodology metadata remains represented by the existing
-fallbacks and placeholders.
-
-Run preservation checks from this project directory:
+JavaScript syntax can be checked with:
 
     node --check app.js
-    node verification/verify.cjs
-
-The original files, pre-change checklist, baseline and comparison results are
-in verification/. Automated checks use DOM/Leaflet adapters and actual data,
-check 35 unchanged functions and compare SHA-256 hashes of both datasets and
-the official logo. Real browser and deployed GitHub Pages acceptance is pending
-because no browser was connected during implementation.

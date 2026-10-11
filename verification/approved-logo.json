@@ -1,6 +1,0 @@
-{
-  "path": "daqiq_logo.png",
-  "sha256": "5fa1be40bc048c0888d498ca6b131ace48b970c882a332505b82c3c979c6db11",
-  "replaces": "daqiq_logo.jpeg",
-  "reason": "User replaced the official logo with PNG and requested another GitHub push."
-}
